@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie DataBase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css" media="screen">
+        #search {
+            display: block;
+            margin-bottom: 20px;
+        }
+        .float {
+            width: 20%;
+            float: left;
+            position: relative;
+            height: 400px;
+            margin-bottom: 10px;
+        }
+        .hover {
+            position: absolute;
+            width: 80%;
+            height: 70%;
+            margin-top: 0;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(29, 106, 154, 0.72);
+            color: #fff;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity .2s, visibility .2s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .float:hover .hover {
+            visibility: visible;
+            opacity: 1;
+        }
+        img {
+            width: 80%;
+            height: 350px;
+            margin-bottom: 0;
+            text-align: center;
+            display: block;
+            margin: auto;     
+        }
+        h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+            text-align: center;
+        }
+        p {
+            margin-top: 0;
+            text-align: center;
+        }
+        .text {
+            text-align: left;
+        }
+        @media (max-width: 992px) {
+            img {
+                height: 300px;
+            }
+            .float {
+                width: 25%;    
+            }
+        }
+        @media (max-width: 768px) {
+            .float {
+                width: 33.33%;
+                height: 350px;
+            }
+            p {
+                font-size: 12px;
+            }
+            img {
+                height: 250px;
+            }
+        }
+        @media (max-width: 412px) {
+            .float {
+                width: 50%;
+                height: 300px;
+            }
+            p {
+                font-size: 10px;
+            }
+            img {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="margin-bottom: 0;">Cinema News Vendor</h1>
+    <div id="search">
+        <form id="search-bar">
+            <input id="bar" type="text" placeholder="Search" size="30">
+            <input id="button" type="submit">
+        </form>
+    </div>
+    <div id="showResult">
+        <p class="text"></p>
+    </div>
+    <div style="clear: both"></div>
+    <div id="movies">
+        <div class="float">
+            <img>
+            <h3></h3>
+            <p></p>
+            <p class="hover"></p>
+        </div>
+    </div>
+    <div style="clear: both"></div>
+    <script>
+        function databaseCallback(movies) {
+            var moviesDiv = document.querySelector("#movies");
+            while(moviesDiv.hasChildNodes()) {
+                moviesDiv.removeChild(moviesDiv.firstChild);
+            }
+            // delete old result num 
+            var resultNum = document.querySelector("#showResult");
+            while(resultNum.hasChildNodes()) {
+                resultNum.removeChild(resultNum.firstChild);
+            }
+            for (var i=0; i<20; i++) {
+                // create the div
+                var divCell = document.createElement("div");
+                divCell.classList.add("float");
+                // create img
+                var imgCell = document.createElement("img");
+                var src = movies.results[i].poster_path;
+                console.log(src);
+                if (!src) {
+                    imgCell.src = "http://www.cineart.be/Documents/Document/Large/20120510153359-NoPosterAvailable.jpg";
+                }
+                else {
+                    imgCell.src = "https://image.tmdb.org/t/p/w500" + src;
+                }
+                // create title
+                var titleCell = document.createElement("h3");
+                titleCell.innerHTML = movies.results[i].original_title;
+                // create release date
+                var dateCell = document.createElement("p");
+                dateCell.innerHTML = movies.results[i].release_date;
+                // create movie discription
+                var discriptionCell = document.createElement("p");
+                discriptionCell.classList.add("hover");
+                var discription = "Rating: " + movies.results[i].vote_average + "<br><br>";
+                if (movies.results[i].overview.length>200) {
+                    discription += movies.results[i].overview.substr(0,200) + "...";
+                }
+                else {
+                    discription += movies.results[i].overview;
+                }
+                discriptionCell.innerHTML = discription;
+                // append contents to new div
+                divCell.appendChild(imgCell);
+                divCell.appendChild(titleCell);
+                divCell.appendChild(dateCell);
+                divCell.appendChild(discriptionCell);
+                // append new div to movie div
+                document.querySelector("#movies").appendChild(divCell);  
+            }
+                        // view result number 
+            var numResults = document.createElement("p");
+            numResults.classList.add("text");
+            numResults.innerHTML = "Showing <strong>20</strong> of <strong>" + movies.total_results + "</strong> results";
+            document.querySelector("#showResult").appendChild(numResults);
+        }
+        
+        document.querySelector("#search-bar").onsubmit = function() {
+            var userInput = document.querySelector("#bar").value.trim();
+            var scripTag = document.createElement("script");
+            scripTag.src = "https://api.themoviedb.org/3/search/movie?api_key=d1af43a277ca6a0318bac8f070cbc849&query="+userInput+"&page=1&callback=databaseCallback";
+            document.body.appendChild(scripTag);
+            return false;
+        }
+
+    </script>
+    <script src="https://api.themoviedb.org/3/movie/now_playing?api_key=d1af43a277ca6a0318bac8f070cbc849&language=en-US&page=1&callback=databaseCallback"></script>
+</body>
+</html>
